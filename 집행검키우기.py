@@ -2,16 +2,17 @@ import pyautogui as pag
 import mss
 import cv2
 import numpy as np
+import time
 
-pag.PAUSE = 0.05
+pag.PAUSE = 0.2
 
 # nox
-# icon position
-left_icon_pos = {"left": 640, "top": 685, "width": 90, "height": 90}
-right_icon_pos = {"left": 840, "top": 685, "width": 90, "height": 90}
 # button position
-left_button = [570, 830]
-right_button = [935, 830]
+left_button = pag.locateOnScreen("button_left.png")
+right_button = pag.locateOnScreen("button_right.png")
+# icon position
+left_icon_pos = {"left": left_button.left + 80, "top": left_button.top - 140, "width": 90, "height": 90}
+right_icon_pos = {"left": right_button.left - 100, "top": right_button.top - 140, "width": 90, "height": 90}
 
 def compute_icon_type(img):
     mean = np.mean(img, axis=(0, 1))
@@ -30,15 +31,9 @@ def compute_icon_type(img):
     return result
 
 def click(coords):
-    pag.moveTo(x=coords[0], y=coords[1], duration= 0.0)
-    pag.mouseDown()
-    pag.mouseUp()
+    pag.click(coords[0],coords[1])    
 
 while True:
-    # x, y = pag.position()
-    # position_str = "X: " + str(x) + "Y: " + str(y)
-    # print(position_str)
-
     with mss.mss() as sct:
         left_img = np.array(sct.grab(left_icon_pos))[:, :, :3]
         right_img = np.array(sct.grab(right_icon_pos))[:, :, :3]
@@ -51,18 +46,20 @@ while True:
 
         if left_icon == 'SWORD' and (right_icon == 'BOMB' or right_icon == 'POISON'):
             print('TAP LEFT!')
-            click(left_button)
+            click(pag.center(left_button))
             # n_fails = 0
         elif right_icon == 'SWORD' and (left_icon == 'BOMB' or left_icon == 'POISON'):
             print('TAP RIGHT!')
-            click(right_button)
+            click(pag.center(right_button))
             # n_fails = 0
         elif left_icon == 'JEWEL' and right_icon == 'JEWEL':
             print('FEVER!')
-            click(left_button)
-            click(right_button)
-            # n_fails = 0
-            # fever = time.time()
+            fever = time.time()
+            while True:
+                click(pag.center(left_button))
+                click(pag.center(right_button))
+                if fever + 3 > time.time():
+                    break
         else:
             print('FAIL')
             # n_fails += 1
