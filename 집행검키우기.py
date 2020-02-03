@@ -5,7 +5,7 @@ import numpy as np
 import time
 
 pag.PAUSE = 0.2
-
+fail_limit = 30
 # nox
 # button position
 left_button = pag.locateOnScreen("button_left.png")
@@ -47,22 +47,34 @@ while True:
         if left_icon == 'SWORD' and (right_icon == 'BOMB' or right_icon == 'POISON'):
             print('TAP LEFT!')
             click(pag.center(left_button))
-            # n_fails = 0
+        
+            n_fails = 0
         elif right_icon == 'SWORD' and (left_icon == 'BOMB' or left_icon == 'POISON'):
             print('TAP RIGHT!')
             click(pag.center(right_button))
-            # n_fails = 0
-        elif left_icon == 'JEWEL' and right_icon == 'JEWEL':
-            print('FEVER!')
-            fever = time.time()
+           
+            n_fails = 0
+        elif left_icon == 'JEWEL' or right_icon == 'JEWEL':
+            # fever = time.time() + 5
             while True:
+                print('FEVER!')
                 click(pag.center(left_button))
                 click(pag.center(right_button))
-                if fever + 3 > time.time():
+                # if fever < time.time():
+                if not(left_icon == 'JEWEL'):
                     break
         else:
             print('FAIL')
-            # n_fails += 1
-            # if n_fails > fail_limit:
-            #     print('failed %s times, terminate!' % (fail_limit))
-            #     break
+            n_fails += 1
+            if n_fails > fail_limit:
+                print('failed {} times, terminate!'.format(fail_limit))
+                break
+            elif left_icon == 'JEWEL' or right_icon == 'JEWEL':
+            # fever = time.time() + 5
+                while True:
+                    print('FEVER!')
+                    click(pag.center(left_button))
+                    click(pag.center(right_button))
+                    # if fever < time.time():
+                    if not(left_icon == 'JEWEL'):
+                        break
